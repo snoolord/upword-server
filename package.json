@@ -1,0 +1,19 @@
+{
+  "name": "upword-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "thesaurus-scrape.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.16.0",
+    "cheerio": "^0.22.0",
+    "express": "^4.14.1",
+    "mongoose": "^4.8.1",
+    "scrape-it": "^3.2.2",
+    "tinyreq": "^3.2.0"
+  }
+}
