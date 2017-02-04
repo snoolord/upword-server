@@ -16,3 +16,6 @@ var WordSchema = new Schema({
     createdAt: { type: Date, default: Date.now }
 
 });
+
+var Word = mongoose.model("Word", WordSchema);
+module.exports.Word = Word;
