@@ -14,7 +14,6 @@ var WordSchema = new Schema({
     word: String,
     synonyms: [SynonymSchema],
     createdAt: { type: Date, default: Date.now }
-
 });
 
 var Word = mongoose.model("Word", WordSchema);
