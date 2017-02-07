@@ -6,13 +6,12 @@ var Schema = mongoose.Schema;
 
 var SynonymSchema = new Schema({
     word: String,
-    partOfSpeech: String,
-    definition: String,
     createdAt: { type: Date, default: Date.now }
 });
 
 var WordSchema = new Schema({
     word: String,
+    partOfSpeech: String,
     synonyms: [SynonymSchema],
     createdAt: { type: Date, default: Date.now }
 });
