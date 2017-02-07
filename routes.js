@@ -37,10 +37,12 @@ router.post('/', function(req, res, next){
     var apiKey = '?key=0b966b02-dd99-4a31-a735-2206edb9a8a5' ;
     axios.get(baseUrl + queryString + apiKey)
         .then(function(response) {
+            var wordsWithSynonyms;
             parseString(response.data, function(err, result){
-                let wordsWithSynonyms = util.convertXMLResultsToWords(req.body.word, result);
-                
-            })
+                wordsWithSynonyms = util
+                    .convertXMLResultsToWords(req.body.word, result);
+            });
+            console.log(wordsWithSynonyms);
         })
         .catch(function(error){
             console.log(error);
