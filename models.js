@@ -13,6 +13,7 @@ var SynonymSchema = new Schema({
 
 var WordSchema = new Schema({
     word: String,
+    partOfSpeech: String,
     synonyms: [SynonymSchema],
     createdAt: { type: Date, default: Date.now }
 });
