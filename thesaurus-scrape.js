@@ -1,28 +1,17 @@
-const scrapeIt = require('scrape-it');
-const cheerio = require('cheerio');
-var Promise = require("bluebird");
+var x = require('x-ray')();
 
 var scrapeForSynonyms = function(word, req, res) {
-    // var $ = cheerio.load('http://www.thesaurus.com/browse/feed?s=t')
-    // let synonyms = scrapeIt.scrapeHTML($,{
-    //     title: {
-    //         selector: '.main h1'
-    //     }
-    // });
     var synonyms;
-    var promise = scrapeIt("http://www.thesaurus.com/browse/feed?s=t", {
-            synonynms: {
-                listItem: '.relevancy-list ul li a .text'
-            }
-        })
-    promise = Promise.bind(promise, synonyms);
-    promise.then(page => {
-        synonyms = page;
-    })
-
-    console.log(synonyms);
-
+    var callback = function(syns) {
+        console.log(syns);
+        synonyms = syns;
+    };
+    x('http://www.thesaurus.com/browse/hello?s=t', ['.relevancy-list ul li a .text'])(function(err, syns){
+            synonyms = syns
+        }
+    );
+    return synonyms.map(syn => syn.replace('/', ''));
+    }
 }
 
-scrapeForSynonyms();
 module.exports = scrapeForSynonyms;
