@@ -9,12 +9,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bluebird": "^3.4.7",
     "body-parser": "^1.16.0",
     "cheerio": "^0.22.0",
     "express": "^4.14.1",
     "mongoose": "^4.8.1",
     "morgan": "^1.8.0",
-    "scrape-it": "^3.2.2",
-    "tinyreq": "^3.2.0"
+    "tinyreq": "^3.2.0",
+    "x-ray": "^2.3.1"
   }
 }
