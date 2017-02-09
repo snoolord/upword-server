@@ -44,31 +44,36 @@ router.post('/', function(req, res, next){
                     util.convertXMLResultsToWords(req.body.word, result);
             });
             for (let i = 0; i < wordsWithSynonyms.length; i++) {
-                var synonymApiRequests = wordsWithSynonyms[i].synonyms.map(function(synonym) {
-                    if ( synonym !== wordsWithSynonyms[i].word) {
-                        return util.fetchSynonyms(synonym);
+                var synonymApiRequests = [];
+                var synonyms = wordsWithSynonyms[i].synonyms;
+                for (let x = 0; x < synonyms.length; x++) {
+                    if ( synonyms[x] !== wordsWithSynonyms[i].word) {
+                        console.log(synonyms[x]);
+                        synonymApiRequests.push(util.fetchSynonyms(synonyms[x]));
                     } else {
-                        return;
+                        continue;
                     }
-                })
-                axios
-                    .all(synonymApiRequests)
-                    .then(function(result){
-                        result = result.map(function(synonym){
-                            return synonym.data;
-                        })
-                        result = result.map(function(synonym){
-                            var syn;
-                            parseString(synonym, function(err, s){
-                                syn = util.convertSynonymResults(s, wordsWithSynonyms[i].partOfSpeech);
-                            });
-                            return syn;
-                        });
-                        console.log(result);
-                        // wordsWithSynonyms[i].synonyms = result;
-                    })
+                }
+                console.log(synonymApiRequests);
+                // axios
+                //     .all(synonymApiRequests)
+                //     .then(function(result){
+                //         result = result.map(function(synonym){
+                //             return synonym.data;
+                //         })
+                //         result = result.map(function(synonym){
+                //             var syn;
+                //             parseString(synonym, function(err, s){
+                //                 syn = util.convertSynonymResults(s, wordsWithSynonyms[i].partOfSpeech);
+                //             });
+                //             return syn;
+                //         });
+                //         wordsWithSynonyms[i].synonyms = result;
+                //     })
+                //     .catch(function(er){
+                //         console.log("API requests all failed");
+                //     })
             }
-            console.log(wordsWithSynonyms);
 
         })
         .catch(function(error){

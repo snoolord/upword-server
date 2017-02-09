@@ -40,7 +40,6 @@ exports.convertSynonymResults = function(synonym, partOfSpeech) {
 }
 
 exports.fetchSynonyms = function(synonym) {
-    console.log(synonym);
     var baseUrl = "http://www.dictionaryapi.com/api/v1/references/collegiate/xml/"
     var queryString = synonym;
     var apiKey = '?key=3df2e79a-e305-4a64-8913-a4f326eaaa5f'
@@ -50,7 +49,6 @@ exports.fetchSynonyms = function(synonym) {
 }
 
 var findBestDefinition = function(definitions) {
-    console.log(definitions);
     var resultDefinitions = [];
 
     for (let i = 0; i < definitions.length; i++) {
