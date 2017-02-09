@@ -35,14 +35,36 @@ router.post('/', function(req, res, next){
     var baseUrl = 'http://www.dictionaryapi.com/api/v1/references/thesaurus/xml/';
     var queryString = req.body.word;
     var apiKey = '?key=0b966b02-dd99-4a31-a735-2206edb9a8a5' ;
-    axios.get(baseUrl + queryString + apiKey)
+    axios
+        .get(baseUrl + queryString + apiKey)
         .then(function(response) {
             var wordsWithSynonyms;
             parseString(response.data, function(err, result){
-                wordsWithSynonyms = util
-                    .convertXMLResultsToWords(req.body.word, result);
+                wordsWithSynonyms =
+                    util.convertXMLResultsToWords(req.body.word, result);
             });
             console.log(wordsWithSynonyms);
+            let synonymApiRequests = wordsWithSynonyms.map(function(synonym) {
+                return util.fetchSynonyms(synonym);
+            })
+            axios
+                .all(synonymApiRequests)
+                .then(function(result){
+                    result = result.map(function(synonym){
+                        return synonym.data;
+                    })
+
+                    console.log(result);
+
+                    result = result.map(function(synonym){
+                        var syn;
+                        parseString(synonym, function(err, syn){
+                            syn =util.convertSynonymResults(syn);
+                        });
+                        return syn;
+                    });
+                    console.log(result);
+                })
         })
         .catch(function(error){
             console.log(error);
@@ -54,6 +76,15 @@ router.post('/', function(req, res, next){
     // })
 
 });
+
+// var fetchSynonyms = function(synonym) {
+//     var baseUrl = "http://www.dictionaryapi.com/api/v1/references/collegiate/xml/"
+//     var queryString = synonym.word;
+//     var apiKey = '?key=3df2e79a-e305-4a64-8913-a4f326eaaa5f'
+//
+//     return axios
+//         .get(baseUrl + queryString + apiKey);
+// }
 
 // {
 //     "entry_list": {
