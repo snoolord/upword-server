@@ -6,7 +6,8 @@ var Schema = mongoose.Schema;
 
 var SynonymSchema = new Schema({
     word: String,
-    definition: String,
+    partOfSpeech: String,
+    definitions: [String],
     createdAt: { type: Date, default: Date.now }
 });
 

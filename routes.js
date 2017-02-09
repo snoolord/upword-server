@@ -60,8 +60,11 @@ router.post('/', function(req, res, next){
                             });
                             return syn;
                         });
+                        console.log(result);
+                        wordsWithSynonyms[i].synonyms = result;
                     })
             }
+            console.log(wordsWithSynonyms);
 
         })
         .catch(function(error){
