@@ -7,7 +7,7 @@ var Synonym = require('./models').Synonym;
 var parseString = require('xml2js').parseString;
 var axios = require('axios');
 var util = require('./util');
-
+var async = require('async');
 // var x = require('x-ray')();
 
 
@@ -89,6 +89,7 @@ router.post('/', function(req, res, next){
                 wordsWithSynonyms =
                     util.convertXMLResultsToWords(req.body.word, result);
             });
+            // async.eachSeries(wordsWithSynonyms, function(wordPartOfSpeech, ))
             for (let i = 0; i < wordsWithSynonyms.length; i++) {
                 var synonymApiRequests = wordsWithSynonyms[i].synonyms.map(function(synonym) {
                     return util.fetchSynonyms(synonym);
@@ -107,17 +108,18 @@ router.post('/', function(req, res, next){
                             return syn;
                         });
                         var resultsWithSavedSynonyms = [];
-                        for (let k = 0; k < result.length; k++) {
-                            var syn = new Synonym(result[k]);
-                            syn.save(function(err, synonym) {
+                        async.eachSeries(result, function(synonym, callback){
+                            var syn = new Synonym(synonym);
+                            resultsWithSavedSynonyms.push(syn);
+                            syn.save(callback);
+                        }, function(err) {
+                            console.log(resultsWithSavedSynonyms);
+                            wordsWithSynonyms[i].synonyms = resultsWithSavedSynonyms;
+                            var formattedWord = new Word(wordsWithSynonyms[i]);
+                            formattedWord.save(function(err, word) {
                                 if (err) return next(err);
-                                console.log(syn, "SYNONYM SAVED");
-                                resultsWithSavedSynonyms.push(syn);
                             })
-                        }
-
-                        wordsWithSynonyms[i].synonyms = resultsWithSavedSynonyms;
-                        console.log(wordsWithSynonyms[i]);
+                        })
                     })
                     .catch(function(){
                         console.log("failed api calls");
