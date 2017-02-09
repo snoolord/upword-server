@@ -26,14 +26,14 @@ exports.convertXMLResultsToWords = function(word, result) {
 exports.convertSynonymResults = function(synonym, partOfSpeech) {
     var syns = JSON.parse(JSON.stringify(synonym)).entry_list.entry;
     for (let i = 0; i < syns.length; i++) {
-        // here I am returning the first one that matches the part of speech
-        // TODO: add functionality with arrays
+    //     // here I am returning the first one that matches the part of speech
+    //     // TODO: add functionality with arrays
         if (syns[i].fl[0] === partOfSpeech) {
             var matchingSyn = syns[i] ;
             var matchingSynResult = {};
             matchingSynResult.word = matchingSyn.ew[0];
             matchingSynResult.partOfSpeech = partOfSpeech;
-            matchingSynResult.definitions = findBestDefinition(matchingSynResult.def[0]);
+            matchingSynResult.definitions = findBestDefinition(matchingSyn.def[0].dt) ;
             return matchingSynResult;
         }
     }
@@ -50,7 +50,6 @@ exports.fetchSynonyms = function(synonym) {
 
 var findBestDefinition = function(definitions) {
     var resultDefinitions = [];
-
     for (let i = 0; i < definitions.length; i++) {
         if (typeof definitions[i] === 'string') {
             resultDefinitions.push(definitions[i]);

@@ -29,6 +29,51 @@ router.get('/:word', function(req, res, next) {
         res.json(word);
     });
 });
+//
+// router.post('/', function(req, res, next){
+//     var word = new Word(req.body);
+//     var baseUrl = 'http://www.dictionaryapi.com/api/v1/references/thesaurus/xml/';
+//     var queryString = req.body.word;
+//     var apiKey = '?key=0b966b02-dd99-4a31-a735-2206edb9a8a5' ;
+//     axios
+//         .get(baseUrl + queryString + apiKey)
+//         .then(function(response) {
+//             var wordsWithSynonyms;
+//             parseString(response.data, function(err, result){
+//                 wordsWithSynonyms =
+//                     util.convertXMLResultsToWords(req.body.word, result);
+//             });
+//             for (let i = 0; i < wordsWithSynonyms.length; i++) {
+//                 var synonymApiRequests = wordsWithSynonyms[i].synonyms.map(function(synonym) {
+//                     return util.fetchSynonyms(synonym);
+//                 })
+//                 axios
+//                     .all(synonymApiRequests)
+//                     .then(function(result){
+//                         result = result.map(function(synonym){
+//                             return synonym.data;
+//                         })
+//                         result = result.map(function(synonym){
+//                             var syn;
+//                             parseString(synonym, function(err, s){
+//                                 syn = util.convertSynonymResults(s, wordsWithSynonyms[i].partOfSpeech);
+//                             });
+//                             return syn;
+//                         });
+//                     })
+//             }
+//
+//         })
+//         .catch(function(error){
+//             console.log(error);
+//         })
+//     // word.save(function(err, word){
+//     //     if (err) return next(err);
+//     //     res.status(201);
+//     //     res.json(word);
+//     // })
+//
+// });
 
 router.post('/', function(req, res, next){
     var word = new Word(req.body);
@@ -44,35 +89,26 @@ router.post('/', function(req, res, next){
                     util.convertXMLResultsToWords(req.body.word, result);
             });
             for (let i = 0; i < wordsWithSynonyms.length; i++) {
-                var synonymApiRequests = [];
-                var synonyms = wordsWithSynonyms[i].synonyms;
-                for (let x = 0; x < synonyms.length; x++) {
-                    if ( synonyms[x] !== wordsWithSynonyms[i].word) {
-                        console.log(synonyms[x]);
-                        synonymApiRequests.push(util.fetchSynonyms(synonyms[x]));
-                    } else {
-                        continue;
-                    }
-                }
-                console.log(synonymApiRequests);
-                // axios
-                //     .all(synonymApiRequests)
-                //     .then(function(result){
-                //         result = result.map(function(synonym){
-                //             return synonym.data;
-                //         })
-                //         result = result.map(function(synonym){
-                //             var syn;
-                //             parseString(synonym, function(err, s){
-                //                 syn = util.convertSynonymResults(s, wordsWithSynonyms[i].partOfSpeech);
-                //             });
-                //             return syn;
-                //         });
-                //         wordsWithSynonyms[i].synonyms = result;
-                //     })
-                //     .catch(function(er){
-                //         console.log("API requests all failed");
-                //     })
+                var synonymApiRequests = wordsWithSynonyms[i].synonyms.map(function(synonym) {
+                    return util.fetchSynonyms(synonym);
+                })
+                axios
+                    .all(synonymApiRequests)
+                    .then(function(result){
+                        result = result.map(function(synonym){
+                            return synonym.data;
+                        })
+                        result = result.map(function(synonym){
+                            var syn;
+                            parseString(synonym, function(err, s){
+                                syn = util.convertSynonymResults(s, wordsWithSynonyms[i].partOfSpeech);
+                            });
+                            return syn;
+                        });
+                    })
+                    .catch(function(){
+                        console.log("failed api calls");
+                    })
             }
 
         })
@@ -86,7 +122,6 @@ router.post('/', function(req, res, next){
     // })
 
 });
-
 // var fetchSynonyms = function(synonym) {
 //     var baseUrl = "http://www.dictionaryapi.com/api/v1/references/collegiate/xml/"
 //     var queryString = synonym.word;
