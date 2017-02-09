@@ -14,7 +14,7 @@ exports.convertXMLResultsToWords = function(word, result) {
         for (let j = 0; j < words[i].sens.length; j++) {
             currWord.partOfSpeech = words[i].fl[0];
             currWord.definition = words[i].sens[j].mc[0];
-            currWord.synonyms = words[i].sens[j].syn;
+            currWord.synonyms = words[i].sens[j].syn[0].split(', ');
             currWord.related = words[i].sens[j].rel;
             wordsWithFieldsParsed.push(currWord);
         }
@@ -24,14 +24,15 @@ exports.convertXMLResultsToWords = function(word, result) {
 }
 
 exports.convertSynonymResults = function(synonym) {
-    var syn = JSON.parse(JSON.stringify(synonym)).entry_list.entry;
-    return syn;
+    var syns = JSON.parse(JSON.stringify(synonym)).entry_list.entry;
+    
 
 }
 
 exports.fetchSynonyms = function(synonym) {
+    console.log(synonym);
     var baseUrl = "http://www.dictionaryapi.com/api/v1/references/collegiate/xml/"
-    var queryString = synonym.word;
+    var queryString = synonym;
     var apiKey = '?key=3df2e79a-e305-4a64-8913-a4f326eaaa5f'
 
     return axios

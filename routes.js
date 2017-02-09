@@ -43,28 +43,26 @@ router.post('/', function(req, res, next){
                 wordsWithSynonyms =
                     util.convertXMLResultsToWords(req.body.word, result);
             });
-            console.log(wordsWithSynonyms);
-            let synonymApiRequests = wordsWithSynonyms.map(function(synonym) {
-                return util.fetchSynonyms(synonym);
-            })
-            axios
-                .all(synonymApiRequests)
-                .then(function(result){
-                    result = result.map(function(synonym){
-                        return synonym.data;
-                    })
-
-                    console.log(result);
-
-                    result = result.map(function(synonym){
-                        var syn;
-                        parseString(synonym, function(err, syn){
-                            syn =util.convertSynonymResults(syn);
-                        });
-                        return syn;
-                    });
-                    console.log(result);
+            for (let i = 0; i < wordsWithSynonyms.length; i++) {
+                var synonymApiRequests = wordsWithSynonyms[i].synonyms.map(function(synonym) {
+                    return util.fetchSynonyms(synonym);
                 })
+                axios
+                    .all(synonymApiRequests)
+                    .then(function(result){
+                        result = result.map(function(synonym){
+                            return synonym.data;
+                        })
+                        result = result.map(function(synonym){
+                            var syn;
+                            parseString(synonym, function(err, s){
+                                syn = util.convertSynonymResults(s, wordsWithSynonyms[i].partOfSpeech);
+                            });
+                            return syn;
+                        });
+                    })
+            }
+
         })
         .catch(function(error){
             console.log(error);
