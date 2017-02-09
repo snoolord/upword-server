@@ -3,6 +3,7 @@
 var express = require('express');
 var router = express.Router();
 var Word = require('./models').Word;
+var Synonym = require('./models').Synonym;
 var parseString = require('xml2js').parseString;
 var axios = require('axios');
 var util = require('./util');
@@ -105,6 +106,18 @@ router.post('/', function(req, res, next){
                             });
                             return syn;
                         });
+                        var resultsWithSavedSynonyms = [];
+                        for (let k = 0; k < result.length; k++) {
+                            var syn = new Synonym(result[k]);
+                            syn.save(function(err, synonym) {
+                                if (err) return next(err);
+                                console.log(syn, "SYNONYM SAVED");
+                                resultsWithSavedSynonyms.push(syn);
+                            })
+                        }
+
+                        wordsWithSynonyms[i].synonyms = resultsWithSavedSynonyms;
+                        console.log(wordsWithSynonyms[i]);
                     })
                     .catch(function(){
                         console.log("failed api calls");
