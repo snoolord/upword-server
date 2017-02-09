@@ -45,7 +45,11 @@ router.post('/', function(req, res, next){
             });
             for (let i = 0; i < wordsWithSynonyms.length; i++) {
                 var synonymApiRequests = wordsWithSynonyms[i].synonyms.map(function(synonym) {
-                    return util.fetchSynonyms(synonym);
+                    if ( synonym !== wordsWithSynonyms[i].word) {
+                        return util.fetchSynonyms(synonym);
+                    } else {
+                        return;
+                    }
                 })
                 axios
                     .all(synonymApiRequests)
@@ -61,7 +65,7 @@ router.post('/', function(req, res, next){
                             return syn;
                         });
                         console.log(result);
-                        wordsWithSynonyms[i].synonyms = result;
+                        // wordsWithSynonyms[i].synonyms = result;
                     })
             }
             console.log(wordsWithSynonyms);
