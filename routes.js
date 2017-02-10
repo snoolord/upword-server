@@ -30,51 +30,6 @@ router.get('/:word', function(req, res, next) {
         res.json(word);
     });
 });
-//
-// router.post('/', function(req, res, next){
-//     var word = new Word(req.body);
-//     var baseUrl = 'http://www.dictionaryapi.com/api/v1/references/thesaurus/xml/';
-//     var queryString = req.body.word;
-//     var apiKey = '?key=0b966b02-dd99-4a31-a735-2206edb9a8a5' ;
-//     axios
-//         .get(baseUrl + queryString + apiKey)
-//         .then(function(response) {
-//             var wordsWithSynonyms;
-//             parseString(response.data, function(err, result){
-//                 wordsWithSynonyms =
-//                     util.convertXMLResultsToWords(req.body.word, result);
-//             });
-//             for (let i = 0; i < wordsWithSynonyms.length; i++) {
-//                 var synonymApiRequests = wordsWithSynonyms[i].synonyms.map(function(synonym) {
-//                     return util.fetchSynonyms(synonym);
-//                 })
-//                 axios
-//                     .all(synonymApiRequests)
-//                     .then(function(result){
-//                         result = result.map(function(synonym){
-//                             return synonym.data;
-//                         })
-//                         result = result.map(function(synonym){
-//                             var syn;
-//                             parseString(synonym, function(err, s){
-//                                 syn = util.convertSynonymResults(s, wordsWithSynonyms[i].partOfSpeech);
-//                             });
-//                             return syn;
-//                         });
-//                     })
-//             }
-//
-//         })
-//         .catch(function(error){
-//             console.log(error);
-//         })
-//     // word.save(function(err, word){
-//     //     if (err) return next(err);
-//     //     res.status(201);
-//     //     res.json(word);
-//     // })
-//
-// });
 
 router.post('/', function(req, res, next){
     var word = new Word(req.body);
@@ -109,6 +64,7 @@ router.post('/', function(req, res, next){
                             });
                             return syn;
                         });
+                        console.log(result);
                         var resultsWithSavedSynonyms = [];
                         async.eachSeries(result, function(synonym, cb){
                             var syn = new Synonym(synonym);
@@ -116,11 +72,11 @@ router.post('/', function(req, res, next){
                             syn.save(cb);
                         }, function(err) {
                             wordPartOfSpeech.synonyms = resultsWithSavedSynonyms;
-                            // callback();
                         })
                     }).then(function() {
+                        console.log(wordPartOfSpeech);
                         var formattedWord = new Word(wordPartOfSpeech);
-                        formattedWord.save(callback);
+                        formattedWord.save();
                     });
             }, function(err){
                 let mappedWordResponse = {};
@@ -137,196 +93,6 @@ router.post('/', function(req, res, next){
         }).catch(function(error) {
             console.log(error);
         });
-        //     for (let i = 0; i < wordsWithSynonyms.length; i++) {
-        //         var synonymApiRequests = wordsWithSynonyms[i].synonyms.map(function(synonym) {
-        //             return util.fetchSynonyms(synonym);
-        //         })
-        //         axios
-        //             .all(synonymApiRequests)
-        //             .then(function(result){
-        //                 result = result.map(function(synonym){
-        //                     return synonym.data;
-        //                 })
-        //                 result = result.map(function(synonym){
-        //                     var syn;
-        //                     parseString(synonym, function(err, s){
-        //                         syn = util.convertSynonymResults(s, wordsWithSynonyms[i].partOfSpeech);
-        //                     });
-        //                     return syn;
-        //                 });
-        //                 var resultsWithSavedSynonyms = [];
-        //                 async.eachSeries(result, function(synonym, callback){
-        //                     var syn = new Synonym(synonym);
-        //                     resultsWithSavedSynonyms.push(syn);
-        //                     syn.save(callback);
-        //                 }, function(err) {
-        //                     console.log(resultsWithSavedSynonyms);
-        //                     wordsWithSynonyms[i].synonyms = resultsWithSavedSynonyms;
-        //                     var formattedWord = new Word(wordsWithSynonyms[i]);
-        //                     formattedWord.save(function(err, word) {
-        //                         if (err) return next(err);
-        //                     })
-        //                 })
-        //             })
-        //             .catch(function(){
-        //                 console.log("failed api calls");
-        //             })
-        //     }
-        //
-        // })
-        // .catch(function(error){
-        //     console.log(error);
-        // })
-    // word.save(function(err, word){
-    //     if (err) return next(err);
-    //     res.status(201);
-    //     res.json(word);
-    // })
-
 });
-// var fetchSynonyms = function(synonym) {
-//     var baseUrl = "http://www.dictionaryapi.com/api/v1/references/collegiate/xml/"
-//     var queryString = synonym.word;
-//     var apiKey = '?key=3df2e79a-e305-4a64-8913-a4f326eaaa5f'
-//
-//     return axios
-//         .get(baseUrl + queryString + apiKey);
-// }
 
-// {
-//     "entry_list": {
-//         "$": {
-//             "version": "1.0"
-//         },
-//         "entry": [
-//             {
-//                 "$": {
-//                     "id": "test"
-//                 },
-//                 "term": [
-//                     {
-//                         "hw": [
-//                             "test"
-//                         ]
-//                     }
-//                 ],
-//                 "fl": [
-//                     "noun"
-//                 ],
-//                 "sens": [
-//                     {
-//                         "sn": [
-//                             "1"
-//                         ],
-//                         "mc": [
-//                             "a procedure or operation carried out to resolve an uncertainty"
-//                         ],
-//                         "vi": [
-//                             {
-//                                 "_": "will need to run some  on the blood sample to rule out blood poisoning",
-//                                 "it": [
-//                                     "tests"
-//                                 ]
-//                             }
-//                         ],
-//                         "syn": [
-//                             "essay, experimentation, test, trial"
-//                         ],
-//                         "rel": [
-//                             {
-//                                 "_": "trial and error; dry run, shakedown; exercise, practice ( practise), rehearsal, tryout, workout; crucible, ordeal; attempt, effort, try",
-//                                 "it": [
-//                                     "also"
-//                                 ]
-//                             }
-//                         ]
-//                     },
-//                     {
-//                         "sn": [
-//                             "2"
-//                         ],
-//                         "mc": [
-//                             "a set of questions or problems designed to assess knowledge, skills, or intelligence"
-//                         ],
-//                         "vi": [
-//                             {
-//                                 "_": "applicants for the cashier's position must first take a simple math ",
-//                                 "it": [
-//                                     "test"
-//                                 ]
-//                             }
-//                         ],
-//                         "syn": [
-//                             "exam, quiz, test"
-//                         ],
-//                         "rel": [
-//                             "aptitude test, intelligence test, placement test; pretest, retest; board(s), midterm, midyear; catechism; audition; final; checkup, inspection, review; inquiry, interrogation, investigation, probe, research"
-//                         ]
-//                     }
-//                 ]
-//             },
-//             {
-//                 "$": {
-//                     "id": "test"
-//                 },
-//                 "term": [
-//                     {
-//                         "hw": [
-//                             "test"
-//                         ]
-//                     }
-//                 ],
-//                 "fl": [
-//                     "verb"
-//                 ],
-//                 "sens": [
-//                     {
-//                         "sn": [
-//                             "1"
-//                         ],
-//                         "mc": [
-//                             "to put (something) to a test"
-//                         ],
-//                         "vi": [
-//                             {
-//                                 "_": "please  this sample for the presence of lead",
-//                                 "it": [
-//                                     "test"
-//                                 ]
-//                             }
-//                         ],
-//                         "syn": [
-//                             "sample, test"
-//                         ],
-//                         "rel": [
-//                             "check (out), examine, experiment (with), explore, feel (out), investigate, research, study; resample, retest"
-//                         ]
-//                     },
-//                     {
-//                         "sn": [
-//                             "2"
-//                         ],
-//                         "mc": [
-//                             "to subject (a personal quality or faculty) to often excessive stress"
-//                         ],
-//                         "vi": [
-//                             {
-//                                 "_": "all of these unnecessary questions are  my patience",
-//                                 "it": [
-//                                     "testing"
-//                                 ]
-//                             }
-//                         ],
-//                         "syn": [
-//                             "strain, stretch, tax, test"
-//                         ],
-//                         "rel": [
-//                             "demand, exact, importune, press, pressure, push; aggravate, agitate, annoy, bother, exasperate, gall, get (to), gnaw (at), grate, harass, harry, hassle, irk, irritate, nettle, pain, peeve, pester, rile, spite, vex"
-//                         ]
-//                     }
-//                 ]
-//             }
-//         ]
-//     }
-// }
 module.exports = router;

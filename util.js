@@ -14,7 +14,7 @@ exports.convertXMLResultsToWords = function(word, result) {
         for (let j = 0; j < words[i].sens.length; j++) {
             currWord.partOfSpeech = words[i].fl[0];
             currWord.definition = words[i].sens[j].mc[0];
-            currWord.synonyms = words[i].sens[j].syn[0].split(', ');
+            currWord.synonyms = returnArrayOfStrings(words[i].sens[j].syn)[0].split(', ');
             currWord.related = words[i].sens[j].rel;
             wordsWithFieldsParsed.push(JSON.parse(JSON.stringify(currWord)));
         }
@@ -33,7 +33,7 @@ exports.convertSynonymResults = function(synonym, partOfSpeech) {
             var matchingSynResult = {};
             matchingSynResult.word = matchingSyn.ew[0];
             matchingSynResult.partOfSpeech = partOfSpeech;
-            matchingSynResult.definitions = findBestDefinition(matchingSyn.def[0].dt) ;
+            matchingSynResult.definitions = returnArrayOfStrings(matchingSyn.def[0].dt) ;
             return matchingSynResult;
         }
     }
@@ -48,7 +48,7 @@ exports.fetchSynonyms = function(synonym) {
         .get(baseUrl + queryString + apiKey);
 }
 
-var findBestDefinition = function(definitions) {
+var returnArrayOfStrings = function(definitions) {
     var resultDefinitions = [];
     for (let i = 0; i < definitions.length; i++) {
         if (typeof definitions[i] === 'string') {
