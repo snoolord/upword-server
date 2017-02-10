@@ -16,7 +16,7 @@ exports.convertXMLResultsToWords = function(word, result) {
             currWord.definition = words[i].sens[j].mc[0];
             currWord.synonyms = words[i].sens[j].syn[0].split(', ');
             currWord.related = words[i].sens[j].rel;
-            wordsWithFieldsParsed.push(currWord);
+            wordsWithFieldsParsed.push(JSON.parse(JSON.stringify(currWord)));
         }
     }
     return wordsWithFieldsParsed;

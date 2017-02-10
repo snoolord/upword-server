@@ -89,47 +89,76 @@ router.post('/', function(req, res, next){
                 wordsWithSynonyms =
                     util.convertXMLResultsToWords(req.body.word, result);
             });
-            // async.eachSeries(wordsWithSynonyms, function(wordPartOfSpeech, ))
-            for (let i = 0; i < wordsWithSynonyms.length; i++) {
-                var synonymApiRequests = wordsWithSynonyms[i].synonyms.map(function(synonym) {
-                    return util.fetchSynonyms(synonym);
-                })
-                axios
-                    .all(synonymApiRequests)
-                    .then(function(result){
-                        result = result.map(function(synonym){
-                            return synonym.data;
-                        })
-                        result = result.map(function(synonym){
-                            var syn;
-                            parseString(synonym, function(err, s){
-                                syn = util.convertSynonymResults(s, wordsWithSynonyms[i].partOfSpeech);
-                            });
-                            return syn;
-                        });
-                        var resultsWithSavedSynonyms = [];
-                        async.eachSeries(result, function(synonym, callback){
-                            var syn = new Synonym(synonym);
-                            resultsWithSavedSynonyms.push(syn);
-                            syn.save(callback);
-                        }, function(err) {
-                            console.log(resultsWithSavedSynonyms);
-                            wordsWithSynonyms[i].synonyms = resultsWithSavedSynonyms;
-                            var formattedWord = new Word(wordsWithSynonyms[i]);
-                            formattedWord.save(function(err, word) {
-                                if (err) return next(err);
-                            })
-                        })
-                    })
-                    .catch(function(){
-                        console.log("failed api calls");
-                    })
-            }
-
-        })
-        .catch(function(error){
+            // async.eachSeries(wordsWithSynonyms, function(wordPartOfSpeech, callback){
+            //     var synonymApiRequests = wordPartOfSpeech.synonyms.map(function(synonym) {
+            //         return util.fetchSynonyms(synonym);
+            //     })
+            //     axios
+            //         .all(synonymApiRequests)
+            //         .then(function(result){
+            //             result = result.map(function(synonym){
+            //                 return synonym.data;
+            //             })
+            //             result = result.map(function(synonym){
+            //                 var syn;
+            //                 parseString(synonym, function(err, s){
+            //                     syn = util.convertSynonymResults(s, wordPartOfSpeech.partOfSpeech);
+            //                 });
+            //                 return syn;
+            //             });
+            //             var resultsWithSavedSynonyms = [];
+            //             async.eachSeries(result, function(synonym, cb){
+            //                 var syn = new Synonym(synonym);
+            //                 resultsWithSavedSynonyms.push(syn);
+            //                 syn.save(cb);
+            //             }, callback)
+            //         })
+            // }, function(err){
+            //     console.log(wordsWithSynonyms);
+            // });
+        }).catch(function(error) {
             console.log(error);
-        })
+        });
+        //     for (let i = 0; i < wordsWithSynonyms.length; i++) {
+        //         var synonymApiRequests = wordsWithSynonyms[i].synonyms.map(function(synonym) {
+        //             return util.fetchSynonyms(synonym);
+        //         })
+        //         axios
+        //             .all(synonymApiRequests)
+        //             .then(function(result){
+        //                 result = result.map(function(synonym){
+        //                     return synonym.data;
+        //                 })
+        //                 result = result.map(function(synonym){
+        //                     var syn;
+        //                     parseString(synonym, function(err, s){
+        //                         syn = util.convertSynonymResults(s, wordsWithSynonyms[i].partOfSpeech);
+        //                     });
+        //                     return syn;
+        //                 });
+        //                 var resultsWithSavedSynonyms = [];
+        //                 async.eachSeries(result, function(synonym, callback){
+        //                     var syn = new Synonym(synonym);
+        //                     resultsWithSavedSynonyms.push(syn);
+        //                     syn.save(callback);
+        //                 }, function(err) {
+        //                     console.log(resultsWithSavedSynonyms);
+        //                     wordsWithSynonyms[i].synonyms = resultsWithSavedSynonyms;
+        //                     var formattedWord = new Word(wordsWithSynonyms[i]);
+        //                     formattedWord.save(function(err, word) {
+        //                         if (err) return next(err);
+        //                     })
+        //                 })
+        //             })
+        //             .catch(function(){
+        //                 console.log("failed api calls");
+        //             })
+        //     }
+        //
+        // })
+        // .catch(function(error){
+        //     console.log(error);
+        // })
     // word.save(function(err, word){
     //     if (err) return next(err);
     //     res.status(201);
