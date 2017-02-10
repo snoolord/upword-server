@@ -123,9 +123,16 @@ router.post('/', function(req, res, next){
                         formattedWord.save(callback);
                     });
             }, function(err){
+                let mappedWordResponse = {};
                 for (let i = 0; i < wordsWithSynonyms.length; i++) {
-                    console.log(wordsWithSynonyms[i]);
+                    if (mappedWordResponse[wordsWithSynonyms[i].partOfSpeech]) {
+                        mappedWordResponse[wordsWithSynonyms[i].partOfSpeech].push(wordsWithSynonyms[i]);
+                    } else {
+                        mappedWordResponse[wordsWithSynonyms[i].partOfSpeech] = [wordsWithSynonyms[i]];
+                    }
                 }
+                res.status = 201;
+                res.json(mappedWordResponse)
             });
         }).catch(function(error) {
             console.log(error);
