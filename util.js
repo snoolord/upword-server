@@ -25,6 +25,7 @@ exports.convertXMLResultsToWords = function(word, result) {
 
 exports.convertSynonymResults = function(synonym, partOfSpeech) {
     var syns = JSON.parse(JSON.stringify(synonym)).entry_list.entry;
+    if (typeof syns === 'undefined') return '';
     for (let i = 0; i < syns.length; i++) {
     //     // here I am returning the first one that matches the part of speech
     //     // TODO: add functionality with arrays
@@ -37,6 +38,7 @@ exports.convertSynonymResults = function(synonym, partOfSpeech) {
             return matchingSynResult;
         }
     }
+    return '';
 }
 
 exports.fetchSynonyms = function(synonym) {
