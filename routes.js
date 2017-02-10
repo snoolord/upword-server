@@ -89,33 +89,44 @@ router.post('/', function(req, res, next){
                 wordsWithSynonyms =
                     util.convertXMLResultsToWords(req.body.word, result);
             });
-            // async.eachSeries(wordsWithSynonyms, function(wordPartOfSpeech, callback){
-            //     var synonymApiRequests = wordPartOfSpeech.synonyms.map(function(synonym) {
-            //         return util.fetchSynonyms(synonym);
-            //     })
-            //     axios
-            //         .all(synonymApiRequests)
-            //         .then(function(result){
-            //             result = result.map(function(synonym){
-            //                 return synonym.data;
-            //             })
-            //             result = result.map(function(synonym){
-            //                 var syn;
-            //                 parseString(synonym, function(err, s){
-            //                     syn = util.convertSynonymResults(s, wordPartOfSpeech.partOfSpeech);
-            //                 });
-            //                 return syn;
-            //             });
-            //             var resultsWithSavedSynonyms = [];
-            //             async.eachSeries(result, function(synonym, cb){
-            //                 var syn = new Synonym(synonym);
-            //                 resultsWithSavedSynonyms.push(syn);
-            //                 syn.save(cb);
-            //             }, callback)
-            //         })
-            // }, function(err){
-            //     console.log(wordsWithSynonyms);
-            // });
+            async.eachSeries(wordsWithSynonyms, function(wordPartOfSpeech, callback){
+                var synonymApiRequests;
+                wordPartOfSpeech.synonyms
+                    .splice(wordPartOfSpeech.synonyms.indexOf(wordPartOfSpeech.word), 1);
+                var synonymApiRequests = wordPartOfSpeech.synonyms.map(function(synonym) {
+                    return util.fetchSynonyms(synonym);
+                })
+                axios
+                    .all(synonymApiRequests)
+                    .then(function(result){
+                        result = result.map(function(synonym){
+                            return synonym.data;
+                        })
+                        result = result.map(function(synonym){
+                            var syn;
+                            parseString(synonym, function(err, s){
+                                syn = util.convertSynonymResults(s, wordPartOfSpeech.partOfSpeech);
+                            });
+                            return syn;
+                        });
+                        var resultsWithSavedSynonyms = [];
+                        async.eachSeries(result, function(synonym, cb){
+                            var syn = new Synonym(synonym);
+                            resultsWithSavedSynonyms.push(syn);
+                            syn.save(cb);
+                        }, function(err) {
+                            wordPartOfSpeech.synonyms = resultsWithSavedSynonyms;
+                            // callback();
+                        })
+                    }).then(function() {
+                        var formattedWord = new Word(wordPartOfSpeech);
+                        formattedWord.save(callback);
+                    });
+            }, function(err){
+                for (let i = 0; i < wordsWithSynonyms.length; i++) {
+                    console.log(wordsWithSynonyms[i]);
+                }
+            });
         }).catch(function(error) {
             console.log(error);
         });
