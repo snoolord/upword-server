@@ -4,6 +4,8 @@
 //     for (var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
 //     return obj3;
 // }
+'use strict';
+
 var axios = require('axios');
 
 exports.convertXMLResultsToWords = function(word, result) {
@@ -12,6 +14,7 @@ exports.convertXMLResultsToWords = function(word, result) {
     for (var i = 0; i < words.length; i++) {
         let currWord = {word: word};
         for (let j = 0; j < words[i].sens.length; j++) {
+            console.log(currWord.word);
             currWord.partOfSpeech = words[i].fl[0];
             currWord.definition = words[i].sens[j].mc[0];
             currWord.synonyms = returnArrayOfStrings(words[i].sens[j].syn)[0].split(', ');
@@ -29,8 +32,13 @@ exports.convertSynonymResults = function(synonym, partOfSpeech) {
     for (let i = 0; i < syns.length; i++) {
     //     // here I am returning the first one that matches the part of speech
     //     // TODO: add functionality with arrays
+    // console.log(typeof syns[i].fl);
+    // console.log(syns[i].fl[0]);
         if (syns[i].fl[0] === partOfSpeech) {
-            var matchingSyn = syns[i] ;
+            var matchingSyn = syns[i];
+            if (!matchingSyn) {
+                return '';
+            }
             var matchingSynResult = {};
             matchingSynResult.word = matchingSyn.ew[0];
             matchingSynResult.partOfSpeech = partOfSpeech;
