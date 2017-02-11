@@ -48,28 +48,47 @@ var processWord = function(wordPartOfSpeech, callback){
         .then(function(result){
             console.log("after synonym api requests");
             result = result.map(function(synonym){
-                return synonym.data;
+                if (typeof synonym === 'string') {
+                    return synonym;
+                } else {
+                    return synonym.data;
+                }
             })
-            result = result.map(function(synonym){
-                var syn;
-                parseString(synonym, function(err, s){
-                    syn = util.convertSynonymResults(s, wordPartOfSpeech.partOfSpeech);
-                });
-                return syn;
-            });
-            arrayUtil.cleanArray(result);
+
+            let results = [];
+            var syn;
+            for (let i = 0; i < result.length; i++) {
+                if (typeof result[i] === 'string') {
+                    console.log("this is a string");
+                    results.push(result[i]);
+                } else {
+                    parseString(result[i], function(err, s){
+                        syn =
+                            util.convertSynonymResults(s, wordPartOfSpeech.partOfSpeech);
+                    });
+                    results.push(syn);
+                }
+            }
+            for (let i = 0; i < results.length; i++) {
+                console.log(results[i]);
+            }
+            // result = result.map(function(synonym){
+            //     var syn;
+            //     return syn;
+            // });
+            arrayUtil.cleanArray(results);
             var wordSynonyms = [];
-            async.each(result, function(synonym, cb){
-                console.log("Process synonym", synonym.word);
-                var syn = new Synonym(synonym);
-                wordSynonyms.push(syn)
-                syn.save(cb);
-            }, function(err) {
-                console.log("SYNONYMS SHOULD BE SAVED!");
-                wordPartOfSpeech.synonyms = wordSynonyms
-                callback();
-                // console.log(wordPartOfSpeech, "Async call!");
-            });
+            // async.each(result, function(synonym, cb){
+            //     console.log("Process synonym", synonym.word);
+            //     var syn = new Synonym(synonym);
+            //     wordSynonyms.push(syn)
+            //     syn.save(cb);
+            // }, function(err) {
+            //     console.log("SYNONYMS SHOULD BE SAVED!");
+            //     wordPartOfSpeech.synonyms = wordSynonyms
+            //     callback();
+            //     // console.log(wordPartOfSpeech, "Async call!");
+            // });
         });
 };
 
@@ -84,33 +103,43 @@ router.post('/', function(req, res, next){
         .then(function(response) {
             var wordsWithSynonyms;
             parseString(response.data, function(err, result){
-                wordsWithSynonyms =
+                var parsedJson =
+                    JSON.parse(JSON.stringify(result.entry_list));
+                console.log(parsedJson);
+                if (parsedJson.suggestion) {
+                    res.status = 404;
+                    res.json(parsedJson.suggestion);
+                } else {
+                    wordsWithSynonyms =
                     util.convertXMLResultsToWords(req.body.word, result);
+                }
             });
-            async.each(wordsWithSynonyms, processWord, function(err){
-                console.log("this is after the synonymss are saved");
-                var formattedWords = [];
-                async.each(wordsWithSynonyms, function(word, callbac) {
-                    console.log("FINALLY SAVING it !!");
-                    var formattedWord = new Word(word);
-                    console.log(formattedWord);
-                    formattedWords.push(formattedWord)
-                    formattedWord.save(callbac);
+            if (wordsWithSynonyms) {
+                async.each(wordsWithSynonyms, processWord, function(err){
+                    console.log("this is after the synonymss are saved");
+                    var formattedWords = [];
+                    async.each(wordsWithSynonyms, function(word, callbac) {
+                        console.log(word.word);
+                        console.log("FINALLY SAVING it !!");
+                        var formattedWord = new Word(word);
+                        console.log(formattedWord);
+                        formattedWords.push(formattedWord)
+                        formattedWord.save(callbac);
 
-                }, function(err){
-                    let mappedWordResponse = {};
-                    for (let i = 0; i < formattedWords.length; i++) {
-                        console.log(formattedWords[i].word, formattedWords[i].synonyms);
-                        if (mappedWordResponse[formattedWords[i].partOfSpeech]) {
-                            mappedWordResponse[formattedWords[i].partOfSpeech].push(formattedWords[i]);
-                        } else {
-                            mappedWordResponse[formattedWords[i].partOfSpeech] = [formattedWords[i]];
+                    }, function(err){
+                        let mappedWordResponse = {word: req.body.word};
+                        for (let i = 0; i < formattedWords.length; i++) {
+                            if (mappedWordResponse[formattedWords[i].partOfSpeech]) {
+                                mappedWordResponse[formattedWords[i].partOfSpeech].push(formattedWords[i]);
+                            } else {
+                                mappedWordResponse[formattedWords[i].partOfSpeech] = [formattedWords[i]];
+                            }
                         }
-                    }
-                    res.status = 201;
-                    res.json(mappedWordResponse)
-                })
-            });
+                        res.status = 201;
+                        res.json(mappedWordResponse)
+                    });
+                });
+            }
         }).catch(function(error) {
             console.log(error);
         });

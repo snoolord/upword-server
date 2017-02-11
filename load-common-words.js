@@ -11,7 +11,7 @@ var readLines = function(){
             word: array[i]
             }, config)
             .then(function(response){
-            console.log(response);
+            console.log(response.data);
             })
             .catch(function(error){
             console.log(error);

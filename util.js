@@ -55,7 +55,10 @@ exports.fetchSynonyms = function(synonym) {
     var apiKey = '?key=3df2e79a-e305-4a64-8913-a4f326eaaa5f'
 
     return axios
-        .get(baseUrl + queryString + apiKey).catch(returnNullOnFailedRequest);
+        .get(baseUrl + queryString + apiKey).catch(function() {
+            console.log(synonym, "CATCHED");
+            return synonym
+        });
 }
 
 var returnNullOnFailedRequest = function () {
