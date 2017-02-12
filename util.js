@@ -53,11 +53,13 @@ exports.fetchSynonyms = function(synonym) {
     var baseUrl = "http://www.dictionaryapi.com/api/v1/references/collegiate/xml/"
     var queryString = synonym;
     var apiKey = '?key=3df2e79a-e305-4a64-8913-a4f326eaaa5f'
-
     return axios
         .get(baseUrl + queryString + apiKey).catch(function() {
             console.log(synonym, "CATCHED");
-            return synonym
+            return {
+                fail: true,
+                synonym: synonym
+            };
         });
 }
 

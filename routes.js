@@ -46,38 +46,50 @@ var processWord = function(wordPartOfSpeech, callback){
     axios
         .all(synonymApiRequests)
         .then(function(result){
-            console.log("after synonym api requests");
+            // console.log("after synonym api requests");
             result = result.map(function(synonym){
-                if (typeof synonym === 'string') {
-                    return synonym;
-                } else {
+                if (synonym.data) {
                     return synonym.data;
+                } else {
+                    return synonym;
                 }
             })
 
             let results = [];
             var syn;
             for (let i = 0; i < result.length; i++) {
+                // if ( typeof result[i] === 'object'){
+                    // console.log(result[i]);
+                // }
                 if (typeof result[i] === 'string') {
-                    console.log("this is a string");
-                    results.push(result[i]);
+                parseString(result[i], function(err, s){
+                    if (JSON.stringify(s)) {
+                        var syns = JSON.parse(JSON.stringify(s));
+                    } 
+                })
                 } else {
-                    parseString(result[i], function(err, s){
-                        syn =
-                            util.convertSynonymResults(s, wordPartOfSpeech.partOfSpeech);
-                    });
-                    results.push(syn);
+                    console.log(result[i], "this is a catch!");
                 }
+                // if (typeof result[i] === 'string') {
+                //     console.log("this is a string");
+                //     results.push(result[i]);
+                // } else {
+                //     parseString(result[i], function(err, s){
+                //         syn =
+                //             util.convertSynonymResults(s, wordPartOfSpeech.partOfSpeech);
+                //     });
+                //     results.push(syn);
+                // }
             }
-            for (let i = 0; i < results.length; i++) {
-                console.log(results[i]);
-            }
+            // for (let i = 0; i < results.length; i++) {
+            //     console.log(results[i]);
+            // }
             // result = result.map(function(synonym){
             //     var syn;
             //     return syn;
             // });
-            arrayUtil.cleanArray(results);
-            var wordSynonyms = [];
+            // arrayUtil.cleanArray(results);
+            // var wordSynonyms = [];
             // async.each(result, function(synonym, cb){
             //     console.log("Process synonym", synonym.word);
             //     var syn = new Synonym(synonym);

@@ -4,7 +4,7 @@ var axios = require('axios');
 var readLines = function(){
     var array = fs.readFileSync('usage.txt').toString().split("\n");
     var config = { proxy: { port: 3000} };
-    for (let i = 101; i < 102; i++) {
+    for (let i = 105; i < 110; i++) {
         console.log(array[i]);
         axios
             .post('/word', {
