@@ -65,7 +65,8 @@ var processWord = function(wordPartOfSpeech, callback){
                 parseString(result[i], function(err, s){
                     if (JSON.stringify(s)) {
                         var syns = JSON.parse(JSON.stringify(s));
-                    } 
+
+                    }
                 })
                 } else {
                     console.log(result[i], "this is a catch!");
