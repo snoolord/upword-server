@@ -35,13 +35,17 @@ router.get('/:word', function(req, res, next) {
 var processWord = function(wordPartOfSpeech, callback){
     console.log("Processing word", wordPartOfSpeech.word);
     var synonymApiRequests;
-
+    // API returns the word in its list of synonyms
+    // need to delete it from the synonyms list
     wordPartOfSpeech.synonyms
         .splice(wordPartOfSpeech.synonyms.indexOf(wordPartOfSpeech.word), 1);
 
     synonymApiRequests = wordPartOfSpeech.synonyms.map(function(synonym) {
+        // fills synonymApiRequests with axios.get requests for axios.all
         return util.fetchSynonyms(synonym);
     })
+    // axios.all will fire all get requests and return a promise
+    // the promise that is returned has the result from all the get requests
 
     axios
         .all(synonymApiRequests)
@@ -54,13 +58,24 @@ var processWord = function(wordPartOfSpeech, callback){
                     return synonym;
                 }
             })
+            // I map over the result to grab the data from the response
 
             let results = [];
             var syn;
             for (let i = 0; i < result.length; i++) {
+                /*
+                Results from the data can fail and be caught and return an object
+                {
+                    fail: true,
+                    synonym: "insert word"
+                }
+                or succeed and return a string of xml
+                */
                 // if ( typeof result[i] === 'object'){
                     // console.log(result[i]);
                 // }
+                // I check if the result is a string and then I
+                // pass it into a function to parse the string
                 if (typeof result[i] === 'string') {
                 parseString(result[i], function(err, s){
                     if (JSON.stringify(s)) {
