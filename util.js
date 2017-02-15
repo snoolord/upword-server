@@ -14,7 +14,6 @@ exports.convertXMLResultsToWords = function(word, result) {
     for (var i = 0; i < words.length; i++) {
         let currWord = {word: word};
         for (let j = 0; j < words[i].sens.length; j++) {
-            console.log(currWord.word);
             currWord.partOfSpeech = words[i].fl[0];
             currWord.definition = words[i].sens[j].mc[0];
             currWord.synonyms = returnArrayOfStrings(words[i].sens[j].syn)[0].split(', ');
@@ -28,17 +27,18 @@ exports.convertXMLResultsToWords = function(word, result) {
 
 exports.convertSynonymResults = function(synonym, partOfSpeech) {
     var syns = JSON.parse(JSON.stringify(synonym)).entry_list.entry;
+    // console.log(syns, "in convert syn resultsj");
     if (typeof syns === 'undefined') return '';
     for (let i = 0; i < syns.length; i++) {
-    //     // here I am returning the first one that matches the part of speech
+        if (typeof syns[i].fl === 'undefined') {
+            continue;
+        }
     //     // TODO: add functionality with arrays
+    //     // here I am returning the first one that matches the part of speech
     // console.log(typeof syns[i].fl);
     // console.log(syns[i].fl[0]);
         if (syns[i].fl[0] === partOfSpeech) {
             var matchingSyn = syns[i];
-            if (!matchingSyn) {
-                return '';
-            }
             var matchingSynResult = {};
             matchingSynResult.word = matchingSyn.ew[0];
             matchingSynResult.partOfSpeech = partOfSpeech;
@@ -46,6 +46,7 @@ exports.convertSynonymResults = function(synonym, partOfSpeech) {
             return matchingSynResult;
         }
     }
+    console.log("this must be where it fails");
     return '';
 }
 
@@ -71,9 +72,13 @@ var returnArrayOfStrings = function(definitions) {
     var resultDefinitions = [];
     for (let i = 0; i < definitions.length; i++) {
         if (typeof definitions[i] === 'string') {
-            resultDefinitions.push(definitions[i]);
+            if (definitions[i]) {
+                resultDefinitions.push(definitions[i]);
+            }
         } else {
-            resultDefinitions.push(definitions[i]["_"]);
+            if (definitions[i]["_"]) {
+                resultDefinitions.push(definitions[i]["_"]);
+            }
         }
     }
     return resultDefinitions

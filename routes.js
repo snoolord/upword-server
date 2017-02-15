@@ -59,7 +59,6 @@ var processWord = function(wordPartOfSpeech, callback){
                 }
             })
             // I map over the result to grab the data from the response
-
             let results = [];
             var syn;
             for (let i = 0; i < result.length; i++) {
@@ -77,29 +76,30 @@ var processWord = function(wordPartOfSpeech, callback){
                 // I check if the result is a string and then I
                 // pass it into a function to parse the string
                 if (typeof result[i] === 'string') {
-                parseString(result[i], function(err, s){
-                    if (JSON.stringify(s)) {
-                        var syns = JSON.parse(JSON.stringify(s));
-
-                    }
-                })
+                    parseString(result[i], function(err, s){
+                        var syns = util.convertSynonymResults(s, wordPartOfSpeech.partOfSpeech);
+                        // console.log(syns, "LINE 81");
+                        if (syns.length !== 0 ) {
+                            results.push(syns);
+                        }
+                    })
                 } else {
-                    console.log(result[i], "this is a catch!");
+                    // console.log(result[i], "this is a catch!");
+                    // console.log(result[i].word, "in the catch", 'LINE 86');
+                    if (result[i]) {
+                        results.push(result[i].word)
+                    } else {
+                        console.log("UNDEFINED IN CATCH");
+                    }
                 }
-                // if (typeof result[i] === 'string') {
-                //     console.log("this is a string");
-                //     results.push(result[i]);
-                // } else {
-                //     parseString(result[i], function(err, s){
-                //         syn =
-                //             util.convertSynonymResults(s, wordPartOfSpeech.partOfSpeech);
-                //     });
-                //     results.push(syn);
-                // }
             }
-            // for (let i = 0; i < results.length; i++) {
-            //     console.log(results[i]);
-            // }
+            for (let i = 0; i < results.length; i++) {
+                if (results[i]) {
+                    console.log(results[i]);
+                } else {
+                    // console.log("UNDEFINEDD");
+                }
+            }
             // result = result.map(function(synonym){
             //     var syn;
             //     return syn;
@@ -114,7 +114,7 @@ var processWord = function(wordPartOfSpeech, callback){
             // }, function(err) {
             //     console.log("SYNONYMS SHOULD BE SAVED!");
             //     wordPartOfSpeech.synonyms = wordSynonyms
-            //     callback();
+            //     // callback();
             //     // console.log(wordPartOfSpeech, "Async call!");
             // });
         });
