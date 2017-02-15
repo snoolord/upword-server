@@ -15,7 +15,7 @@ var WordSchema = new Schema({
     word: String,
     partOfSpeech: String,
     definition: String,
-    synonyms: [SynonymSchema],
+    synonyms: [String],
     related: [String],
     createdAt: { type: Date, default: Date.now }
 });
