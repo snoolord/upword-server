@@ -17,7 +17,8 @@ exports.convertXMLResultsToWords = function(word, result) {
             currWord.partOfSpeech = words[i].fl[0];
             currWord.definition = words[i].sens[j].mc[0];
             currWord.synonyms = returnArrayOfStrings(words[i].sens[j].syn)[0].split(', ');
-            currWord.related = words[i].sens[j].rel;
+            currWord.related = returnArrayOfStrings(words[i].sens[j].rel)[0].split(', ');
+            console.log(currWord.related);
             wordsWithFieldsParsed.push(JSON.parse(JSON.stringify(currWord)));
         }
     }
@@ -69,6 +70,9 @@ var returnNullOnFailedRequest = function () {
 }
 
 var returnArrayOfStrings = function(definitions) {
+    if (!definitions) {
+        return [''];
+    }
     var resultDefinitions = [];
     for (let i = 0; i < definitions.length; i++) {
         if (typeof definitions[i] === 'string') {

@@ -3,7 +3,7 @@
 var express = require('express');
 var router = express.Router();
 var Word = require('./models').Word;
-var Synonym = require('./models').Synonym;
+// var Synonym = require('./models').Synonym;
 var parseString = require('xml2js').parseString;
 var axios = require('axios');
 var util = require('./util');
@@ -44,7 +44,7 @@ router.post('/', function(req, res, next){
             parseString(response.data, function(err, result){
                 var parsedJson =
                     JSON.parse(JSON.stringify(result.entry_list));
-                console.log(parsedJson);
+                // console.log(parsedJson);
                 if (parsedJson.suggestion) {
                     res.status = 404;
                     res.json(parsedJson.suggestion);
@@ -55,12 +55,27 @@ router.post('/', function(req, res, next){
             });
             if (wordsWithSynonyms) {
                 // console.log(wordsWithSynonyms);
+                var formattedWords = [];
                 async.each(wordsWithSynonyms, function(word, callback) {
-                    console.log(word, "in async");
-                    var formattedWord = new Word(word);
-                    formattedWord.save(callback);
+                    // console.log(word, "in async");
+                    // var formattedWord = new Word(word);
+                    // formattedWord.save(function(err) {
+                    //     if (err) return next(err);
+                    //     formattedWords.push(formattedWord)
+                    //     callback();
+                    // });
                 }, function(err) {
+                    let mappedWordResponse = {word: req.body.word};
+                    for (let i = 0; i < formattedWords.length; i++) {
+                        if (mappedWordResponse[formattedWords[i].partOfSpeech]) {
+                            mappedWordResponse[formattedWords[i].partOfSpeech].push(formattedWords[i]);
+                        } else {
+                            mappedWordResponse[formattedWords[i].partOfSpeech] = [formattedWords[i]];
+                        }
+                    }
                     console.log('we\'re done!');
+                    res.status = 201;
+                    res.json(mappedWordResponse)
                 })
                 // async.each(wordsWithSynonyms, processWord, function(err){
                 //     console.log("this is after the synonymss are saved");
