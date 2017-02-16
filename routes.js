@@ -25,6 +25,9 @@ router.param('word', function(req, res, next, word) {
     });
 });
 
+router.get('/', function(req, res) {
+    res.send("Hello");
+});
 router.get('/:word', function(req, res, next) {
     res.status = 201;
     res.json(req.wordsByPartOfSpeech)
