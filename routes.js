@@ -1,35 +1,46 @@
 'use strict';
 
-var express = require('express');
-var router = express.Router();
-var Word = require('./models').Word;
-// var Synonym = require('./models').Synonym;
-var parseString = require('xml2js').parseString;
 var axios = require('axios');
-var util = require('./util');
-var arrayUtil = require('./array-util');
+var express = require('express');
 var async = require('async');
-// var x = require('x-ray')();
+var parseString = require('xml2js').parseString;
+var router = express.Router();
 
+var Word = require('./models').Word;
+var util = require('./util/util');
+var arrayUtil = require('./util/array-util');
+var separateByPartsOfSpeech = require('./util/separate-by-parts-of-speech');
 
-// router.param('word', function(req, res, next, word) {
-//     Word.findOne({word: word}, function(err, doc){
-//         if (err) return next(err);
-//         if (!doc) {
-//             err = new Error("Not Found");
-//             err.status = 404;
-//             return next(err);
-//         }
-//         req.word = doc;
-//         return next();
-//     });
-// });
+router.param('word', function(req, res, next, word) {
+    console.log(word);
+    Word.find({word: word}, function(err, docs){
+        if (err) return next(err);
+        if (!docs) {
+            err = new Error("Not Found");
+            err.status = 404;
+            return next(err);
+        }
+        // var mappedWordResponse = {word: word};
+        // for (let i = 0; i < docs.length; i++) {
+        //     if (mappedWordResponse[docs[i].partOfSpeech]) {
+        //         mappedWordResponse[docs[i].partOfSpeech].push(docs[i]);
+        //     } else {
+        //         mappedWordResponse[docs[i].partOfSpeech] = [docs[i]];
+        //     }
+        // }
+        req.wordsByPartOfSpeech = separateByPartsOfSpeech(word, docs);
+        return next();
+    });
+});
 
 router.get('/:word', function(req, res, next) {
-    Word.find({}).exec(function(err, word) {
-        if (err) return next(err);
-        res.json(word);
-    });
+    // Word.find({}).exec(function(err, word) {
+    // for (let i = 0; i < req.word.length; i++) {
+    //     console.log(req.word[i].word, i);
+    // }
+    res.status = 201;
+    res.json(req.wordsByPartOfSpeech)
+    // });
 });
 
 router.post('/', function(req, res, next){
@@ -64,16 +75,9 @@ router.post('/', function(req, res, next){
                         callback();
                     });
                 }, function(err) {
-                    let mappedWordResponse = {word: req.body.word};
-                    for (let i = 0; i < formattedWords.length; i++) {
-                        if (mappedWordResponse[formattedWords[i].partOfSpeech]) {
-                            mappedWordResponse[formattedWords[i].partOfSpeech].push(formattedWords[i]);
-                        } else {
-                            mappedWordResponse[formattedWords[i].partOfSpeech] = [formattedWords[i]];
-                        }
-                    }
+                    let mappedWordResponse = separateByPartsOfSpeech(req.body.word, formattedWords);
                     res.status = 201;
-                    res.json(mappedWordResponse)
+                    res.json(mappedWordResponse);
                 })
             }
         }).catch(function(error) {
