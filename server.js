@@ -11,7 +11,7 @@ app.use(logger("dev"));
 app.use(jsonParser());
 
 // var uri = process.env.MONGOLAB_URI ||'mongodb://localhost:27017/words'
-mongoose.connect("mongodb://<dbuser>:<dbpassword>@ds153699.mlab.com:53699/heroku_285vgks2")
+mongoose.connect("mongodb://heroku_285vgks2:806qvj4flfb5o42h6v2oahvhil@ds153699.mlab.com:53699/heroku_285vgks2")
 
 app.use('/word', routes);
 
