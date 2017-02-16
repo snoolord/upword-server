@@ -87,4 +87,3 @@ var returnArrayOfStrings = function(definitions) {
     }
     return resultDefinitions
 }
-// module.exports = mergeOptions;

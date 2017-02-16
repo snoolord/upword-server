@@ -20,42 +20,29 @@ router.param('word', function(req, res, next, word) {
             err.status = 404;
             return next(err);
         }
-        // var mappedWordResponse = {word: word};
-        // for (let i = 0; i < docs.length; i++) {
-        //     if (mappedWordResponse[docs[i].partOfSpeech]) {
-        //         mappedWordResponse[docs[i].partOfSpeech].push(docs[i]);
-        //     } else {
-        //         mappedWordResponse[docs[i].partOfSpeech] = [docs[i]];
-        //     }
-        // }
         req.wordsByPartOfSpeech = separateByPartsOfSpeech(word, docs);
         return next();
     });
 });
 
 router.get('/:word', function(req, res, next) {
-    // Word.find({}).exec(function(err, word) {
-    // for (let i = 0; i < req.word.length; i++) {
-    //     console.log(req.word[i].word, i);
-    // }
     res.status = 201;
     res.json(req.wordsByPartOfSpeech)
-    // });
 });
 
 router.post('/', function(req, res, next){
-    // var word = new Word(req.body);
     var baseUrl = 'http://www.dictionaryapi.com/api/v1/references/thesaurus/xml/';
     var queryString = req.body.word;
     var apiKey = '?key=0b966b02-dd99-4a31-a735-2206edb9a8a5' ;
+    // perform first api call to get the word
     axios
         .get(baseUrl + queryString + apiKey)
         .then(function(response) {
             var wordsWithSynonyms;
+            // I separated the words by part of speech and formatted it
             parseString(response.data, function(err, result){
                 var parsedJson =
                     JSON.parse(JSON.stringify(result.entry_list));
-                // console.log(parsedJson);
                 if (parsedJson.suggestion) {
                     res.status = 404;
                     res.json(parsedJson.suggestion);
@@ -64,9 +51,12 @@ router.post('/', function(req, res, next){
                     util.convertXMLResultsToWords(req.body.word, result);
                 }
             });
+            /* if wordsWithSynonyms is populated then I can save all the words
+             to the database*/
             if (wordsWithSynonyms) {
-                // console.log(wordsWithSynonyms);
                 var formattedWords = [];
+                // I use async.each so that I can wait for all the saves to process
+                // then the formattedWords are mapped to a response json
                 async.each(wordsWithSynonyms, function(word, callback) {
                     var formattedWord = new Word(word);
                     formattedWord.save(function(err) {
