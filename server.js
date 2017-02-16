@@ -11,6 +11,7 @@ app.use(logger("dev"));
 app.use(jsonParser());
 
 var uri = process.env.MONGOLAB_URI ||'mongodb://localhost:27017/words'
+console.log(uri);
 mongoose.connect(uri)
 
 app.use('/word', routes);
