@@ -10,9 +10,9 @@ var logger = require("morgan");
 app.use(logger("dev"));
 app.use(jsonParser());
 
-var uri = process.env.MONGOLAB_URI ||'mongodb://localhost:27017/words'
+// var uri = process.env.MONGOLAB_URI ||'mongodb://localhost:27017/words'
 console.log(uri);
-mongoose.connect(uri)
+mongoose.connect("mongodb://<dbuser>:<dbpassword>@ds153699.mlab.com:53699/heroku_285vgks2")
 
 app.use('/word', routes);
 
