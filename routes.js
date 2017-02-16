@@ -67,6 +67,7 @@ router.post('/', function(req, res, next){
                 }, function(err) {
                     let mappedWordResponse = separateByPartsOfSpeech(req.body.word, formattedWords);
                     res.status = 201;
+                    console.log(mappedWordResponse);
                     res.json(mappedWordResponse);
                 })
             }
