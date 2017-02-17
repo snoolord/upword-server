@@ -1,6 +1,6 @@
-var nr = require('newrelic');
 'use strict';
 
+var nr = require('newrelic');
 var express = require('express');
 var app = express();
 var jsonParser = require('body-parser').json;
