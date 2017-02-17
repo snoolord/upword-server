@@ -11,6 +11,8 @@ var util = require('./util/util');
 var arrayUtil = require('./util/array-util');
 var separateByPartsOfSpeech = require('./util/separate-by-parts-of-speech');
 
+setInterval(axios.get("https://upword-server.herokuapp.com/word/value"), 30000);
+
 router.param('word', function(req, res, next, word) {
     console.log(word);
     Word.find({word: word}, function(err, docs){
