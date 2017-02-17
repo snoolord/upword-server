@@ -34,3 +34,10 @@ var port = process.env.PORT || 3000;
 app.listen(port, function() {
     console.log("Express is running");
 });
+
+// keep dyno awake
+
+var http = require("http");
+setInterval(function() {
+    http.get("https://upword-server.herokuapp.com/word/value");
+}, 300000); // every 5 minutes (300000)

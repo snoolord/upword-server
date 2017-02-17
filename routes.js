@@ -15,7 +15,8 @@ router.param('word', function(req, res, next, word) {
     console.log(word);
     Word.find({word: word}, function(err, docs){
         if (err) return next(err);
-        if (!docs) {
+        console.log(docs);
+        if (docs.length === 0) {
             err = new Error("Not Found");
             err.status = 404;
             return next(err);
