@@ -50,7 +50,7 @@ router.post('/', function(req, res, next){
                     JSON.parse(JSON.stringify(result.entry_list));
                 if (parsedJson.suggestion) {
                     res.status = 404;
-                    res.json(parsedJson.suggestion);
+                    res.json({related: parsedJson.suggestion});
                 } else {
                     wordsWithSynonyms =
                     util.convertXMLResultsToWords(req.body.word, result);
