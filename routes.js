@@ -16,20 +16,20 @@ var separateByPartsOfSpeech = require('./util/separate-by-parts-of-speech');
 router.param('word', function(req, res, next, word) {
     Word.find({word: word}, function(err, docs){
         if (err) return next(err);
-        console.log(docs.length);
         if (docs.length === 0) {
-            Suggested.findOne({word: word}, function (err, docs) {
-                if (docs.length === 0) {
+            Suggested.findOne({word: word}, function (err, doc) {
+                if (!doc) {
                     err = new Error("Not Found");
                     err.status = 404;
                     return next(err);
                 }
-                req.wordsByPartOfSpeech = docs
+                req.wordsByPartOfSpeech = doc
                 return next()
             })
+        } else {
+            req.wordsByPartOfSpeech = separateByPartsOfSpeech(word, docs);
+            return next();
         }
-        req.wordsByPartOfSpeech = separateByPartsOfSpeech(word, docs);
-        return next();
     });
 });
 
@@ -61,7 +61,8 @@ router.post('/', function(req, res, next){
                         related: parsedJson.suggestion
                     }
                     var newSuggested = new Suggested(formattedSuggestion)
-                    newSuggested.save()
+                    newSuggested.save(function(err) {
+                    })
                     res.json({related: parsedJson.suggestion});
                 } else {
                     wordsWithSynonyms =

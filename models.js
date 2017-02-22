@@ -12,10 +12,21 @@ var Schema = mongoose.Schema;
 // });
 var SuggestedSchema= new Schema({
     word: String,
-    related: [String]
+    related: [String],
     createdAt: {type: Date, default: Date.now}
 })
 
+SuggestedSchema.pre('save', function (next) {
+    var self = this
+    Suggested.findOne({word: self.word}, function(err, doc) {
+        if (!doc) {
+            next()
+        } else {
+            console.log('suggested exists')
+            next(new Error('suggested exists!'))
+        }
+    })
+})
 var WordSchema = new Schema({
     word: String,
     partOfSpeech: String,

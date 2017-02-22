@@ -10,7 +10,7 @@ describe('sample unit test', function () {
             .expect('Content-type', /json/)
             .expect(201)
             .end(function (err, res) {
-                console.log(res)
+                
                 done()
             })
     })
