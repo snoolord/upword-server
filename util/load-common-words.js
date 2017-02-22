@@ -8,7 +8,7 @@ var readLines = function(){
         console.log(array[i]);
         axios
             .post('/word', {
-            word: array[i]
+                word: array[i]
             }, config)
             .then(function(response){
             console.log(response.data);

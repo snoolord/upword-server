@@ -7,20 +7,26 @@ var parseString = require('xml2js').parseString;
 var router = express.Router();
 
 var Word = require('./models').Word;
+var Suggested = require('./models').Suggested
 var util = require('./util/util');
 var arrayUtil = require('./util/array-util');
 var separateByPartsOfSpeech = require('./util/separate-by-parts-of-speech');
 
 
 router.param('word', function(req, res, next, word) {
-    console.log(word);
     Word.find({word: word}, function(err, docs){
         if (err) return next(err);
-        console.log(docs);
+        console.log(docs.length);
         if (docs.length === 0) {
-            err = new Error("Not Found");
-            err.status = 404;
-            return next(err);
+            Suggested.findOne({word: word}, function (err, docs) {
+                if (docs.length === 0) {
+                    err = new Error("Not Found");
+                    err.status = 404;
+                    return next(err);
+                }
+                req.wordsByPartOfSpeech = docs
+                return next()
+            })
         }
         req.wordsByPartOfSpeech = separateByPartsOfSpeech(word, docs);
         return next();
@@ -50,6 +56,12 @@ router.post('/', function(req, res, next){
                     JSON.parse(JSON.stringify(result.entry_list));
                 if (parsedJson.suggestion) {
                     res.status = 404;
+                    var formattedSuggestion = {
+                        word: req.body.word,
+                        related: parsedJson.suggestion
+                    }
+                    var newSuggested = new Suggested(formattedSuggestion)
+                    newSuggested.save()
                     res.json({related: parsedJson.suggestion});
                 } else {
                     wordsWithSynonyms =
@@ -72,7 +84,6 @@ router.post('/', function(req, res, next){
                 }, function(err) {
                     let mappedWordResponse = separateByPartsOfSpeech(req.body.word, formattedWords);
                     res.status = 201;
-                    console.log(mappedWordResponse);
                     res.json(mappedWordResponse);
                 })
             }
