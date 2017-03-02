@@ -42,3 +42,50 @@ x(`http://www.thesaurus.com/browse/best?s=t`, {
     //         res.json(mappedWordResponse)
     //     });
     // });
+3/1/2017
+    // perform first api call to get the word
+    // axios
+    //     .get(baseUrl + queryString + apiKey)
+    //     .then(function(response) {
+    //         var wordsWithSynonyms;
+    //         // I separated the words by part of speech and formatted it
+    //         parseString(response.data, function(err, result){
+    //             var parsedJson =
+    //                 JSON.parse(JSON.stringify(result.entry_list));
+    //             if (parsedJson.suggestion) {
+    //                 res.status = 404;
+    //                 var formattedSuggestion = {
+    //                     word: req.body.word,
+    //                     related: parsedJson.suggestion
+    //                 }
+    //                 var newSuggested = new Suggested(formattedSuggestion)
+    //                 newSuggested.save(function(err) {
+    //                 })
+    //                 res.json({related: parsedJson.suggestion});
+    //             } else {
+    //                 wordsWithSynonyms =
+    //                 util.convertXMLResultsToWords(req.body.word, result);
+    //             }
+    //         });
+    //         /* if wordsWithSynonyms is populated then I can save all the words
+    //          to the database*/
+    //         if (wordsWithSynonyms) {
+    //             var formattedWords = [];
+    //             // I use async.each so that I can wait for all the saves to process
+    //             // then the formattedWords are mapped to a response json
+    //             async.each(wordsWithSynonyms, function(word, callback) {
+    //                 var formattedWord = new Word(word);
+    //                 formattedWord.save(function(err) {
+    //                     if (err) return next(err);
+    //                     formattedWords.push(formattedWord)
+    //                     callback();
+    //                 });
+    //             }, function(err) {
+    //                 let mappedWordResponse = separateByPartsOfSpeech(req.body.word, formattedWords);
+    //                 res.status = 201;
+    //                 res.json(mappedWordResponse);
+    //             })
+    //         }
+    //     }).catch(function(error) {
+    //         console.log(error);
+    //     });

@@ -11,7 +11,7 @@ var Suggested = require('./models').Suggested
 var util = require('./util/util');
 var arrayUtil = require('./util/array-util');
 var separateByPartsOfSpeech = require('./util/separate-by-parts-of-speech');
-var lookUpword = require('look-upword')
+var { lookUpword } = require('look-upword')
 
 router.param('word', function(req, res, next, word) {
     Word.find({word: word}, function(err, docs){
@@ -46,53 +46,33 @@ router.post('/', function(req, res, next){
     var queryString = req.body.word;
     var apiKey = '?key=0b966b02-dd99-4a31-a735-2206edb9a8a5' ;
 
-    console.log(lookUpword)
-    // perform first api call to get the word
-    // axios
-    //     .get(baseUrl + queryString + apiKey)
-    //     .then(function(response) {
-    //         var wordsWithSynonyms;
-    //         // I separated the words by part of speech and formatted it
-    //         parseString(response.data, function(err, result){
-    //             var parsedJson =
-    //                 JSON.parse(JSON.stringify(result.entry_list));
-    //             if (parsedJson.suggestion) {
-    //                 res.status = 404;
-    //                 var formattedSuggestion = {
-    //                     word: req.body.word,
-    //                     related: parsedJson.suggestion
-    //                 }
-    //                 var newSuggested = new Suggested(formattedSuggestion)
-    //                 newSuggested.save(function(err) {
-    //                 })
-    //                 res.json({related: parsedJson.suggestion});
-    //             } else {
-    //                 wordsWithSynonyms =
-    //                 util.convertXMLResultsToWords(req.body.word, result);
-    //             }
-    //         });
-    //         /* if wordsWithSynonyms is populated then I can save all the words
-    //          to the database*/
-    //         if (wordsWithSynonyms) {
-    //             var formattedWords = [];
-    //             // I use async.each so that I can wait for all the saves to process
-    //             // then the formattedWords are mapped to a response json
-    //             async.each(wordsWithSynonyms, function(word, callback) {
-    //                 var formattedWord = new Word(word);
-    //                 formattedWord.save(function(err) {
-    //                     if (err) return next(err);
-    //                     formattedWords.push(formattedWord)
-    //                     callback();
-    //                 });
-    //             }, function(err) {
-    //                 let mappedWordResponse = separateByPartsOfSpeech(req.body.word, formattedWords);
-    //                 res.status = 201;
-    //                 res.json(mappedWordResponse);
-    //             })
-    //         }
-    //     }).catch(function(error) {
-    //         console.log(error);
-    //     });
+    var suggestionCallback = function (parsedJson) {
+            console.log(parsedJson)
+            res.status = 404
+            var newSuggested = new Suggested(parsedJson)
+            newSuggested.save(function(err) {
+            })
+            res.json({related: parsedJson.related});
+    }
+
+    var wordsCallback = function (wordsWithSynonyms) {
+        var formattedWords = [];
+        // I use async.each so that I can wait for all the saves to process
+        // then the formattedWords are mapped to a response json
+        async.each(wordsWithSynonyms, function(word, callback) {
+            var formattedWord = new Word(word);
+            formattedWord.save(function(err) {
+                if (err) return next(err);
+                formattedWords.push(formattedWord)
+                callback();
+            });
+        }, function(err) {
+            let mappedWordResponse = separateByPartsOfSpeech(req.body.word, formattedWords);
+            res.status = 201;
+            res.json(mappedWordResponse);
+        })
+    }
+    lookUpword(apiKey, queryString, suggestionCallback, wordsCallback)
 });
 
 module.exports = router;
